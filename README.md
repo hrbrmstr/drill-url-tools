@@ -2,11 +2,13 @@
 
 A set of Apache Drill UDFs for working with URLs
 
-It uses [`galimatias`](http://galimatias.mola.io/).
+It uses the [`galimatias`](http://galimatias.mola.io/) Java library for the parsing.
 
 ## UDFs
 
-There is one UDF:
+The following UDFs are included:
+
+- `url_parse(url-string)`: Given a URL/URI string input, a set of fields (`url`, `scheme`, `username`, `password`, `host`, `port`, path`, `query` and `fragment`) will be returned in a map.
 
 ## Building
 

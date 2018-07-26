@@ -46,6 +46,7 @@ public class URLParse implements DrillSimpleFunc {
     String path = null;
     String query = null;
     String fragment = null;
+    String errormsg = null;
 
     url = url.toLowerCase();
     url = url.trim();
@@ -65,7 +66,7 @@ public class URLParse implements DrillSimpleFunc {
         fragment = curl.fragment();
     
       } catch(io.mola.galimatias.GalimatiasParseException e) {
-        scheme = e.getMessage();
+        errormsg = e.getMessage();
       }
 
     }
@@ -159,6 +160,17 @@ public class URLParse implements DrillSimpleFunc {
       row.end = outBytes.length; 
       row.buffer = buffer;
       mw.varChar("fragment").write(row);
+    }
+
+    if (errormsg != null) {
+      row = new org.apache.drill.exec.expr.holders.VarCharHolder();
+      outBytes = errormsg.getBytes();
+      buffer.reallocIfNeeded(outBytes.length); 
+      buffer.setBytes(0, outBytes);
+      row.start = 0; 
+      row.end = outBytes.length; 
+      row.buffer = buffer;
+      mw.varChar("errormsg").write(row);
     }
     
   }
