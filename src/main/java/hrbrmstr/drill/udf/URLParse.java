@@ -5,11 +5,11 @@ import org.apache.drill.exec.expr.DrillSimpleFunc;
 import org.apache.drill.exec.expr.annotations.FunctionTemplate;
 import org.apache.drill.exec.expr.annotations.Output;
 import org.apache.drill.exec.expr.annotations.Param;
-import org.apache.drill.exec.expr.holders.NullableVarCharHolder;
+import org.apache.drill.exec.expr.holders.VarCharHolder;
 import org.apache.drill.exec.vector.complex.writer.BaseWriter;
 
-//import io.mola.galimatias.*;
-//import io.mola.galimatias.canonicalize.*;
+import io.mola.galimatias.*;
+import io.mola.galimatias.canonicalize.*;
 
 import javax.inject.Inject;
 
@@ -20,7 +20,7 @@ import javax.inject.Inject;
 )
 public class URLParse implements DrillSimpleFunc {
   
-  @Param NullableVarCharHolder url_string;
+  @Param VarCharHolder url_string;
   
   @Output BaseWriter.ComplexWriter out;
   
@@ -35,144 +35,105 @@ public class URLParse implements DrillSimpleFunc {
     String url = org.apache.drill.exec.expr.fn.impl.StringFunctionHelpers.toStringFromUTF8(
       url_string.start, url_string.end, url_string.buffer
     );
-    
-    if (url.isEmpty() || url == null) url = "";
 
-    String scheme = null;
-    String username = null;
-    String password = null;
-    String host = null;
-    String port = null;
-    String path = null;
-    String query = null;
-    String fragment = null;
-    String errormsg = null;
+    try {
 
-    url = url.toLowerCase();
-    url = url.trim();
+      io.mola.galimatias.URL curl = io.mola.galimatias.URL.parse(url);
 
-    if (url.length() > 0) {
-      
-      try {
-        io.mola.galimatias.URL curl = io.mola.galimatias.URL.parse(url);
+      String scheme = curl.scheme();
+      String username = curl.username();
+      String password = curl.password();
+      String host = curl.host().toString();
+      String port = java.lang.Integer.toString(curl.port());
+      String path = curl.path();
+      String query = curl.query();
+      String fragment = curl.fragment();
 
-        scheme = curl.scheme();
-        username = curl.username();
-        password = curl.password();
-        host = curl.host().toString();
-        port = java.lang.Integer.toString(curl.port());
-        path = curl.path();
-        query = curl.query();
-        fragment = curl.fragment();
-    
-      } catch(io.mola.galimatias.GalimatiasParseException e) {
-        errormsg = e.getMessage();
+      org.apache.drill.exec.expr.holders.VarCharHolder row = new org.apache.drill.exec.expr.holders.VarCharHolder();
+
+      if (scheme != null) {
+        byte[] schemeBytes = scheme.getBytes();
+        buffer.reallocIfNeeded(schemeBytes.length); 
+        buffer.setBytes(0, schemeBytes);
+        row.start = 0; 
+        row.end = schemeBytes.length; 
+        row.buffer = buffer;
+        mw.varChar("scheme").write(row);
       }
 
+      if (username != null) {
+        byte[] userBytes = username.getBytes();
+        buffer.reallocIfNeeded(userBytes.length); 
+        buffer.setBytes(0, userBytes);
+        row.start = 0; 
+        row.end = userBytes.length; 
+        row.buffer = buffer;
+        mw.varChar("username").write(row);
+      }
+
+      if (password != null) {
+        byte[] passBytes = password.getBytes();
+        buffer.reallocIfNeeded(passBytes.length); 
+        buffer.setBytes(0, passBytes);
+        row.start = 0; 
+        row.end = passBytes.length; 
+        row.buffer = buffer;
+        mw.varChar("password").write(row);
+      }
+
+      if (host != null) {
+        byte[] hostBytes = host.getBytes();
+        buffer.reallocIfNeeded(hostBytes.length); 
+        buffer.setBytes(0, hostBytes);
+        row.start = 0; 
+        row.end = hostBytes.length; 
+        row.buffer = buffer;
+        mw.varChar("host").write(row);
+      }
+
+      if (port != null) {
+        byte[] portBytes = port.getBytes();
+        buffer.reallocIfNeeded(portBytes.length); 
+        buffer.setBytes(0, portBytes);
+        row.start = 0; 
+        row.end = portBytes.length; 
+        row.buffer = buffer;
+        mw.varChar("port").write(row);
+      }
+
+      if (path != null) {
+        byte[] pathBytes = path.getBytes();
+        buffer.reallocIfNeeded(pathBytes.length); 
+        buffer.setBytes(0, pathBytes);
+        row.start = 0; 
+        row.end = pathBytes.length; 
+        row.buffer = buffer;
+        mw.varChar("path").write(row);
+      }
+
+      if (query != null) {
+        byte[] queryBytes = query.getBytes();
+        buffer.reallocIfNeeded(queryBytes.length); 
+        buffer.setBytes(0, queryBytes);
+        row.start = 0; 
+        row.end = queryBytes.length; 
+        row.buffer = buffer;
+        mw.varChar("query").write(row);
+      }
+
+      if (fragment != null) {
+        byte[] fragBytes = fragment.getBytes();
+        buffer.reallocIfNeeded(fragBytes.length); 
+        buffer.setBytes(0, fragBytes);
+        row.start = 0; 
+        row.end = fragBytes.length; 
+        row.buffer = buffer;
+        mw.varChar("fragment").write(row);
+      }
+
+    } catch(Exception e) {
     }
 
-    org.apache.drill.exec.expr.holders.VarCharHolder row;
-    byte[] outBytes;
-
-    if (scheme != null) {
-      row = new org.apache.drill.exec.expr.holders.VarCharHolder();
-      outBytes = scheme.getBytes();
-      buffer.reallocIfNeeded(outBytes.length); 
-      buffer.setBytes(0, outBytes);
-      row.start = 0; 
-      row.end = outBytes.length; 
-      row.buffer = buffer;
-      mw.varChar("scheme").write(row);
-    }
-
-    if (username != null) {
-      row = new org.apache.drill.exec.expr.holders.VarCharHolder();
-      outBytes = username.getBytes();
-      buffer.reallocIfNeeded(outBytes.length); 
-      buffer.setBytes(0, outBytes);
-      row.start = 0; 
-      row.end = outBytes.length; 
-      row.buffer = buffer;
-      mw.varChar("username").write(row);
-    }
-
-    if (password != null) {
-      row = new org.apache.drill.exec.expr.holders.VarCharHolder();
-      outBytes = password.getBytes();
-      buffer.reallocIfNeeded(outBytes.length); 
-      buffer.setBytes(0, outBytes);
-      row.start = 0; 
-      row.end = outBytes.length; 
-      row.buffer = buffer;
-      mw.varChar("password").write(row);
-    }
-
-    if (host != null) {
-      row = new org.apache.drill.exec.expr.holders.VarCharHolder();
-      outBytes = host.getBytes();
-      buffer.reallocIfNeeded(outBytes.length); 
-      buffer.setBytes(0, outBytes);
-      row.start = 0; 
-      row.end = outBytes.length; 
-      row.buffer = buffer;
-      mw.varChar("host").write(row);
-    }
-
-    if (port != null) {
-      row = new org.apache.drill.exec.expr.holders.VarCharHolder();
-      outBytes = port.getBytes();
-      buffer.reallocIfNeeded(outBytes.length); 
-      buffer.setBytes(0, outBytes);
-      row.start = 0; 
-      row.end = outBytes.length; 
-      row.buffer = buffer;
-      mw.varChar("port").write(row);
-    }
-
-    if (path != null) {
-      row = new org.apache.drill.exec.expr.holders.VarCharHolder();
-      outBytes = path.getBytes();
-      buffer.reallocIfNeeded(outBytes.length); 
-      buffer.setBytes(0, outBytes);
-      row.start = 0; 
-      row.end = outBytes.length; 
-      row.buffer = buffer;
-      mw.varChar("path").write(row);
-    }
-
-    if (query != null) {
-      row = new org.apache.drill.exec.expr.holders.VarCharHolder();
-      outBytes = query.getBytes();
-      buffer.reallocIfNeeded(outBytes.length); 
-      buffer.setBytes(0, outBytes);
-      row.start = 0; 
-      row.end = outBytes.length; 
-      row.buffer = buffer;
-      mw.varChar("query").write(row);
-    }
-
-    if (fragment != null) {
-      row = new org.apache.drill.exec.expr.holders.VarCharHolder();
-      outBytes = fragment.getBytes();
-      buffer.reallocIfNeeded(outBytes.length); 
-      buffer.setBytes(0, outBytes);
-      row.start = 0; 
-      row.end = outBytes.length; 
-      row.buffer = buffer;
-      mw.varChar("fragment").write(row);
-    }
-
-    if (errormsg != null) {
-      row = new org.apache.drill.exec.expr.holders.VarCharHolder();
-      outBytes = errormsg.getBytes();
-      buffer.reallocIfNeeded(outBytes.length); 
-      buffer.setBytes(0, outBytes);
-      row.start = 0; 
-      row.end = outBytes.length; 
-      row.buffer = buffer;
-      mw.varChar("errormsg").write(row);
-    }
-    
   }
   
 }
